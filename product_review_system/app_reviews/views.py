@@ -37,4 +37,40 @@ class LogoutView(generics.GenericAPIView):
         request.user.auth_token.delete()
         logout(request)
         return Response(status=status.HTTP_200_OK)
+
+# for product
+
+class ProductListCreateView(generics.ListCreateAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     
+    def perform_create(self, serializer):
+        if not self.request.user.is_admin:
+            return Response(
+                {"details":"Only admin users can create products"},
+                status = status.HTTP_403_FORBIDDEN
+            )
+        serializer.save(created_by = self.request.user)
+class ProductRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    
+    def perform_update(self, serializer):
+        if not self.request.user.is_admin:
+            return Response(
+                {"details": "Only admin users can update products"},
+                status= status.HTTP_403_FORBIDDEN
+            )
+        serializer.save()
+    
+    def perform_destroy(self, instance):
+        if not self.request.user.is_admin:
+            return Response(
+                {"detail": "Only admin users can delete products."},
+                status= status.HTTP_403_FORBIDDEN
+            )
+        instance.delete()
+        
+            
