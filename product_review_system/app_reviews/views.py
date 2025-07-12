@@ -72,5 +72,23 @@ class ProductRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
                 status= status.HTTP_403_FORBIDDEN
             )
         instance.delete()
+# For Review
+class ReviewListCreateView(generics.ListCreateAPIView):
+    serializer_class = ReviewSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    
+    def get_queryset(self):
+        product_id = self.kwargs['product_id']
+        return Review.objects.filter(product_id = product_id)
+    
+    def perform_create(self, serializer):
+        product_id = self.kwargs['product_id']
+        product = Product.objects.get(id = product_id)
+        
+        if Review.objects.filter(product = product, user = self.request.user).exists():
+            raise serializers.ValidationError("You have already reviewd this product")
+        serializer.save(user = self.request.user, product = product)
+        
+        
         
             
