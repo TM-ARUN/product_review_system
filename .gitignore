@@ -1,0 +1,8 @@
+*.pyc
+__pycache__/
+*.mysql
+.env
+venv/
+*.swp
+.idea/
+.DS_Store
