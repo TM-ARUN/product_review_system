@@ -1,8 +1,6 @@
-*.pyc
-__pycache__/
-*.mysql
 .env
 venv/
-*.swp
-.idea/
-.DS_Store
+env_prs/
+*.pyc
+__pycache__/
+migrations/
