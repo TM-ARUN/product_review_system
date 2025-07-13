@@ -26,7 +26,7 @@ class CustomAuthToken(ObtainAuthToken):
         user = serializer.validated_data['user']
         token,created = Token.objects.get_or_create(user = user)
         return Response({
-            'token':token.key,
+            'token': token.key,
             'user_id': user.pk,
             'is_admin': user.is_admin
         })
@@ -48,7 +48,7 @@ class ProductListCreateView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         if not self.request.user.is_admin:
             return Response(
-                {"details":"Only admin users can create products"},
+                {"detail":"Only admin users can create products"},
                 status = status.HTTP_403_FORBIDDEN
             )
         serializer.save(created_by = self.request.user)
@@ -60,7 +60,7 @@ class ProductRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     def perform_update(self, serializer):
         if not self.request.user.is_admin:
             return Response(
-                {"details": "Only admin users can update products"},
+                {"detail": "Only admin users can update products"},
                 status= status.HTTP_403_FORBIDDEN
             )
         serializer.save()

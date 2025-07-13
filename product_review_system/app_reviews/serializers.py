@@ -1,10 +1,35 @@
 from rest_framework import serializers
 from .models import *
+from django.contrib.auth.hashers import make_password
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id','username','email','is_admin']
+        fields = ['id', 'username', 'email', 'is_admin', 'password']
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def create(self, validated_data):
+        # Force password hashing - NO EXCEPTIONS
+        validated_data['password'] = make_password(validated_data['password'])
+        
+        # DEBUG: Print the hashed password before saving
+        print(f"Hashing password. Result: {validated_data['password']}")
+        
+        # Use get_or_create to prevent duplicates
+        user, created = User.objects.get_or_create(
+            username=validated_data['username'],
+            defaults={
+                'email': validated_data['email'],
+                'password': validated_data['password'],
+                'is_admin': validated_data.get('is_admin', False)
+            }
+        )
+        
+        if not created:
+            user.password = validated_data['password']
+            user.save()
+        
+        return user
 class ProductSerializer(serializers.ModelSerializer):
     average_rating = serializers.SerializerMethodField()
     review_count = serializers.SerializerMethodField()
